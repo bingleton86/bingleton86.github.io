@@ -11,6 +11,7 @@
             --grass-alt: #557d2d;
             --ui-panel: #3e2723;
             --gold: #fbc02d;
+            --wood-light: #795548;
         }
 
         body {
@@ -39,10 +40,27 @@
             box-shadow: 0 0 50px rgba(0,0,0,0.9);
         }
 
-        #game-over {
-            position: absolute; display: none; flex-direction: column;
+        #game-over, #start-screen {
+            position: absolute; display: flex; flex-direction: column;
             align-items: center; background: rgba(40, 20, 10, 0.95);
             padding: 40px; border: 4px solid var(--gold); text-align: center; z-index: 10;
+        }
+
+        #game-over { display: none; }
+
+        .title-pixel {
+            font-size: 2.5rem;
+            color: var(--gold);
+            text-shadow: 4px 4px #000;
+            margin: 0;
+            letter-spacing: 2px;
+        }
+
+        .subtitle-pixel {
+            font-size: 1rem;
+            color: #ffccbc;
+            margin-bottom: 30px;
+            text-transform: uppercase;
         }
 
         .powerup-bar {
@@ -53,9 +71,16 @@
         #powerup-fill { height: 100%; width: 0%; background: #00e5ff; transition: width 0.1s linear; }
 
         button {
-            background: var(--gold); color: #3e2723; border: none;
-            padding: 12px 24px; font-size: 1.1rem; font-weight: bold;
+            background: var(--gold); color: #3e2723; border: 4px solid #2d1b18;
+            padding: 12px 32px; font-size: 1.5rem; font-weight: bold;
             cursor: pointer; margin-top: 20px;
+            box-shadow: 4px 4px 0px #2d1b18;
+            transition: transform 0.1s;
+        }
+
+        button:active {
+            transform: translate(2px, 2px);
+            box-shadow: 2px 2px 0px #2d1b18;
         }
     </style>
 </head>
@@ -76,8 +101,15 @@
     
     <div class="powerup-bar"><div id="powerup-fill"></div></div>
 
+    <!-- Start Screen UI -->
+    <div id="start-screen">
+        <h1 class="title-pixel">JOURNEY OF THE<br>PRAIRIE KING</h1>
+        <p class="subtitle-pixel">Stardew Valley Inspired</p>
+        <button onclick="startGame()">PLAY</button>
+    </div>
+
     <div id="game-over">
-        <h1 style="color: #ff5252; margin: 0;">FALlen</h1>
+        <h1 style="color: #ff5252; margin: 0; font-size: 3rem;">FALLEN</h1>
         <p id="final-stats"></p>
         <button onclick="resetGame()">RETRY JOURNEY</button>
     </div>
@@ -91,6 +123,7 @@
         const powerFill = document.getElementById('powerup-fill');
         const itemText = document.getElementById('active-item');
         const gameOverEl = document.getElementById('game-over');
+        const startScreenEl = document.getElementById('start-screen');
 
         const COLOR_MAP = {
             'B': '#000', 'W': '#fff', 'R': '#d32f2f', 'G': '#4caf50',
@@ -115,11 +148,13 @@
         const GOLD_COLOR = '#fbc02d';
         const INVINCIBILITY_DURATION = 1500;
 
-        let player, enemies, bullets, powerups, keys, isGameOver, lastSpawn, highScore;
+        let player = { x: 280, y: 280, w: 24, h: 24, lives: 3, score: 0, lastShot: 0 };
+        let enemies, bullets, powerups, keys, isGameOver, lastSpawn, highScore;
         let activePowerup = null;
         let powerupTimer = 0;
         let invincibilityTimer = 0;
         let screenFlash = 0;
+        let gameRunning = false;
 
         highScore = parseInt(localStorage.getItem('prairie_highscore')) || 0;
         highEl.innerText = `BEST: ${highScore}`;
@@ -153,8 +188,13 @@
         window.addEventListener('keydown', e => keys[e.code] = true);
         window.addEventListener('keyup', e => keys[e.code] = false);
 
+        function startGame() {
+            startScreenEl.style.display = 'none';
+            gameRunning = true;
+            init();
+        }
+
         function spawnPowerup(x, y) {
-            // Nerfed drop rate: 8% instead of 15%
             if (Math.random() < 0.08) {
                 const rand = Math.random();
                 let type = 'trishot';
@@ -189,7 +229,7 @@
         }
 
         function update() {
-            if (isGameOver) return;
+            if (!gameRunning || isGameOver) return;
 
             let pSpeed = activePowerup === 'coffee' ? PLAYER_SPEED_BASE * 1.6 : PLAYER_SPEED_BASE;
 
@@ -241,7 +281,6 @@
             });
 
             const now = Date.now();
-            // Spawn Rate much higher: 700ms vs 1800ms
             if (now - lastSpawn > 700) {
                 const side = Math.floor(Math.random() * 4);
                 let ex, ey;
@@ -287,6 +326,8 @@
                 }
             }
 
+            if (!gameRunning) return;
+
             powerups.forEach(p => {
                 let color = '#fbc02d';
                 if(p.type === 'coffee') color = '#00e5ff';
@@ -312,13 +353,14 @@
         }
 
         function updateUI() {
+            if (!player) return;
             scoreEl.innerText = `GOLD: ${player.score}`;
             heartRow.innerHTML = '';
             for(let i=0; i<3; i++) {
                 const h = document.createElement('canvas');
                 h.width = 20; h.height = 20;
                 const hCtx = h.getContext('2d');
-                if (i < player.lives) {
+                if (player && i < player.lives) {
                     SPRITES.heart.forEach((row, ri) => {
                         [...row].forEach((char, ci) => {
                             if(char === 'R') {
@@ -354,7 +396,8 @@
             requestAnimationFrame(loop);
         }
 
-        init();
+        // Initialize UI but don't start loop until interaction or just start loop and guard update
+        updateUI();
         loop();
     </script>
 </body>
