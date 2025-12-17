@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Journey of the Prairie King</title>
+    <style>
+        :root {
+            --bg-dark: #0a0a0a;
+            --grass: #5d8a31;
+            --grass-alt: #557d2d;
+            --ui-panel: #3e2723;
+            --gold: #fbc02d;
+        }
+
+        body {
+            margin: 0;
+            background-color: var(--bg-dark);
+            color: #fff;
+            font-family: 'Courier New', Courier, monospace;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            height: 100vh; overflow: hidden; user-select: none;
+        }
+
+        #header {
+            width: 560px; display: flex; justify-content: space-between;
+            align-items: center; padding: 10px; background: var(--ui-panel);
+            border: 4px solid #2d1b18; border-bottom: none;
+        }
+
+        .stats { display: flex; flex-direction: column; gap: 2px; }
+        .heart-row { display: flex; gap: 4px; margin-top: 4px; }
+
+        canvas {
+            background-color: var(--grass);
+            border: 8px solid var(--ui-panel);
+            image-rendering: pixelated;
+            box-shadow: 0 0 50px rgba(0,0,0,0.9);
+        }
+
+        #game-over {
+            position: absolute; display: none; flex-direction: column;
+            align-items: center; background: rgba(40, 20, 10, 0.95);
+            padding: 40px; border: 4px solid var(--gold); text-align: center; z-index: 10;
+        }
+
+        .powerup-bar {
+            width: 560px; height: 10px; background: #222; margin-top: 5px;
+            border: 2px solid var(--ui-panel); position: relative;
+        }
+
+        #powerup-fill { height: 100%; width: 0%; background: #00e5ff; transition: width 0.1s linear; }
+
+        button {
+            background: var(--gold); color: #3e2723; border: none;
+            padding: 12px 24px; font-size: 1.1rem; font-weight: bold;
+            cursor: pointer; margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="header">
+        <div class="stats">
+            <div id="score">GOLD: 0</div>
+            <div id="high-score" style="font-size: 0.8rem; color: #aaa;">BEST: 0</div>
+        </div>
+        <div class="stats" style="align-items: flex-end;">
+            <div id="active-item" style="color: #00e5ff; font-size: 0.8rem; font-weight: bold;">NO ITEM</div>
+            <div class="heart-row" id="heart-row"></div>
+        </div>
+    </div>
+
+    <canvas id="gameCanvas" width="560" height="560"></canvas>
+    
+    <div class="powerup-bar"><div id="powerup-fill"></div></div>
+
+    <div id="game-over">
+        <h1 style="color: #ff5252; margin: 0;">FALlen</h1>
+        <p id="final-stats"></p>
+        <button onclick="resetGame()">RETRY JOURNEY</button>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const highEl = document.getElementById('high-score');
+        const heartRow = document.getElementById('heart-row');
+        const powerFill = document.getElementById('powerup-fill');
+        const itemText = document.getElementById('active-item');
+        const gameOverEl = document.getElementById('game-over');
+
+        const COLOR_MAP = {
+            'B': '#000', 'W': '#fff', 'R': '#d32f2f', 'G': '#4caf50',
+            'Br': '#5d4037', 'H': '#ffccbc', 'Y': '#fbc02d', 'C': '#00e5ff', 'P': '#9c27b0', '_': null
+        };
+
+        const SPRITES = {
+            player: ["_BBBB_", "BBrBrB", "BBBBBB", "BHHHHB", "BBBBBB", "_B__B_"],
+            enemy: ["_GGGG_", "G_GG_G", "GGGGGG", "GWWWWG", "_BBBB_", "_G__G_"],
+            heart: ["RR_RR", "RRRRR", "RRRRR", "_RRR_", "__R__"],
+            trishot: ["__Y__", "_Y_Y_", "Y_Y_Y"],
+            machinegun: ["_PPP_", "PP_PP", "_PPP_"],
+            coffee: ["_CCC_", "C___C", "_CCC_"],
+            nuke: ["_RRR_", "R_R_R", "_RRR_"]
+        };
+
+        const PLAYER_SPEED_BASE = 2.8;
+        const ENEMY_SPEED_BASE = 0.8;
+        const FIRE_RATE_BASE = 450;
+        const BULLET_SPEED = 6;
+        const SPRITE_SCALE = 4;
+        const GOLD_COLOR = '#fbc02d';
+        const INVINCIBILITY_DURATION = 1500;
+
+        let player, enemies, bullets, powerups, keys, isGameOver, lastSpawn, highScore;
+        let activePowerup = null;
+        let powerupTimer = 0;
+        let invincibilityTimer = 0;
+        let screenFlash = 0;
+
+        highScore = parseInt(localStorage.getItem('prairie_highscore')) || 0;
+        highEl.innerText = `BEST: ${highScore}`;
+
+        function init() {
+            player = { x: 280, y: 280, w: 24, h: 24, lives: 3, score: 0, lastShot: 0 };
+            enemies = [];
+            bullets = [];
+            powerups = [];
+            keys = {};
+            isGameOver = false;
+            lastSpawn = Date.now();
+            activePowerup = null;
+            powerupTimer = 0;
+            invincibilityTimer = 0;
+            updateUI();
+        }
+
+        function drawPixel(map, x, y, scale, colorOverride = null) {
+            map.forEach((row, ri) => {
+                [...row].forEach((char, ci) => {
+                    const color = colorOverride || COLOR_MAP[char];
+                    if (color) {
+                        ctx.fillStyle = color;
+                        ctx.fillRect(x + ci * scale, y + ri * scale, scale, scale);
+                    }
+                });
+            });
+        }
+
+        window.addEventListener('keydown', e => keys[e.code] = true);
+        window.addEventListener('keyup', e => keys[e.code] = false);
+
+        function spawnPowerup(x, y) {
+            // Nerfed drop rate: 8% instead of 15%
+            if (Math.random() < 0.08) {
+                const rand = Math.random();
+                let type = 'trishot';
+                if (rand > 0.75) type = 'nuke';
+                else if (rand > 0.5) type = 'coffee';
+                else if (rand > 0.25) type = 'machinegun';
+                
+                powerups.push({ x, y, type, life: 600 });
+            }
+        }
+
+        function shoot(dx, dy) {
+            const now = Date.now();
+            let delay = activePowerup === 'machinegun' ? 120 : FIRE_RATE_BASE;
+            
+            if (now - player.lastShot > delay) {
+                const bX = player.x + 8;
+                const bY = player.y + 8;
+                bullets.push({ x: bX, y: bY, dx, dy });
+                
+                if (activePowerup === 'trishot') {
+                    if (dx !== 0) {
+                        bullets.push({ x: bX, y: bY, dx, dy: 0.4 });
+                        bullets.push({ x: bX, y: bY, dx, dy: -0.4 });
+                    } else {
+                        bullets.push({ x: bX, y: bY, dx: 0.4, dy });
+                        bullets.push({ x: bX, y: bY, dx: -0.4, dy });
+                    }
+                }
+                player.lastShot = now;
+            }
+        }
+
+        function update() {
+            if (isGameOver) return;
+
+            let pSpeed = activePowerup === 'coffee' ? PLAYER_SPEED_BASE * 1.6 : PLAYER_SPEED_BASE;
+
+            if (keys['KeyW'] && player.y > 0) player.y -= pSpeed;
+            if (keys['KeyS'] && player.y < canvas.height - player.h) player.y += pSpeed;
+            if (keys['KeyA'] && player.x > 0) player.x -= pSpeed;
+            if (keys['KeyD'] && player.x < canvas.width - player.w) player.x += pSpeed;
+
+            if (keys['ArrowUp']) shoot(0, -1);
+            else if (keys['ArrowDown']) shoot(0, 1);
+            else if (keys['ArrowLeft']) shoot(-1, 0);
+            else if (keys['ArrowRight']) shoot(1, 0);
+
+            if (powerupTimer > 0) {
+                powerupTimer--;
+                powerFill.style.width = (powerupTimer / 400) * 100 + "%";
+                if (powerupTimer <= 0) {
+                    activePowerup = null;
+                    itemText.innerText = "NO ITEM";
+                }
+            }
+
+            if (invincibilityTimer > 0) invincibilityTimer -= 16.6;
+            if (screenFlash > 0) screenFlash -= 0.05;
+
+            bullets.forEach((b, i) => {
+                b.x += b.dx * BULLET_SPEED;
+                b.y += b.dy * BULLET_SPEED;
+                if (b.x < -10 || b.x > 570 || b.y < -10 || b.y > 570) bullets.splice(i, 1);
+            });
+
+            powerups.forEach((p, i) => {
+                p.life--;
+                if (p.life <= 0) powerups.splice(i, 1);
+                if (Math.hypot(player.x - p.x, player.y - p.y) < 25) {
+                    if (p.type === 'nuke') {
+                        enemies.forEach(en => spawnPowerup(en.x, en.y));
+                        player.score += enemies.length * 5;
+                        enemies = [];
+                        screenFlash = 1.0;
+                    } else {
+                        activePowerup = p.type;
+                        powerupTimer = 400;
+                        itemText.innerText = p.type.toUpperCase();
+                    }
+                    updateUI();
+                    powerups.splice(i, 1);
+                }
+            });
+
+            const now = Date.now();
+            // Spawn Rate much higher: 700ms vs 1800ms
+            if (now - lastSpawn > 700) {
+                const side = Math.floor(Math.random() * 4);
+                let ex, ey;
+                if (side === 0) { ex = Math.random() * 560; ey = -30; }
+                else if (side === 1) { ex = 590; ey = Math.random() * 560; }
+                else if (side === 2) { ex = Math.random() * 560; ey = 590; }
+                else { ex = -30; ey = Math.random() * 560; }
+                enemies.push({ x: ex, y: ey, speed: ENEMY_SPEED_BASE + (player.score/3500) });
+                lastSpawn = now;
+            }
+
+            enemies.forEach((en, i) => {
+                const angle = Math.atan2(player.y - en.y, player.x - en.x);
+                en.x += Math.cos(angle) * en.speed;
+                en.y += Math.sin(angle) * en.speed;
+
+                if (invincibilityTimer <= 0 && Math.hypot(player.x - en.x, player.y - en.y) < 18) {
+                    player.lives--;
+                    invincibilityTimer = INVINCIBILITY_DURATION;
+                    updateUI();
+                    if (player.lives <= 0) endGame();
+                }
+
+                bullets.forEach((b, bi) => {
+                    if (Math.hypot(b.x - (en.x + 12), b.y - (en.y + 12)) < 15) {
+                        spawnPowerup(en.x, en.y);
+                        enemies.splice(i, 1);
+                        bullets.splice(bi, 1);
+                        player.score += 10;
+                        updateUI();
+                    }
+                });
+            });
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, 560, 560);
+            
+            for(let x=0; x<14; x++) {
+                for(let y=0; y<14; y++) {
+                    ctx.fillStyle = (x+y)%2===0 ? 'rgba(0,0,0,0.05)' : 'rgba(0,0,0,0.02)';
+                    ctx.fillRect(x*40, y*40, 40, 40);
+                }
+            }
+
+            powerups.forEach(p => {
+                let color = '#fbc02d';
+                if(p.type === 'coffee') color = '#00e5ff';
+                if(p.type === 'machinegun') color = '#9c27b0';
+                if(p.type === 'nuke') color = '#ff5252';
+                drawPixel(SPRITES[p.type], p.x, p.y, 3, color);
+            });
+
+            if (invincibilityTimer <= 0 || Math.floor(Date.now() / 100) % 2 === 0) {
+                const colorOverride = invincibilityTimer > 1200 ? '#ff5252' : null;
+                drawPixel(SPRITES.player, player.x, player.y, SPRITE_SCALE, colorOverride);
+            }
+
+            enemies.forEach(en => drawPixel(SPRITES.enemy, en.x, en.y, SPRITE_SCALE));
+
+            ctx.fillStyle = GOLD_COLOR;
+            bullets.forEach(b => ctx.fillRect(b.x, b.y, 6, 6));
+
+            if (screenFlash > 0) {
+                ctx.fillStyle = `rgba(255, 255, 255, ${screenFlash})`;
+                ctx.fillRect(0,0,560,560);
+            }
+        }
+
+        function updateUI() {
+            scoreEl.innerText = `GOLD: ${player.score}`;
+            heartRow.innerHTML = '';
+            for(let i=0; i<3; i++) {
+                const h = document.createElement('canvas');
+                h.width = 20; h.height = 20;
+                const hCtx = h.getContext('2d');
+                if (i < player.lives) {
+                    SPRITES.heart.forEach((row, ri) => {
+                        [...row].forEach((char, ci) => {
+                            if(char === 'R') {
+                                hCtx.fillStyle = '#d32f2f';
+                                hCtx.fillRect(ci*4, ri*4, 4, 4);
+                            }
+                        });
+                    });
+                }
+                heartRow.appendChild(h);
+            }
+        }
+
+        function endGame() {
+            isGameOver = true;
+            if (player.score > highScore) {
+                highScore = player.score;
+                localStorage.setItem('prairie_highscore', highScore);
+                highEl.innerText = `BEST: ${highScore}`;
+            }
+            document.getElementById('final-stats').innerText = `Score: ${player.score} | Best: ${highScore}`;
+            gameOverEl.style.display = 'flex';
+        }
+
+        function resetGame() {
+            gameOverEl.style.display = 'none';
+            init();
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        init();
+        loop();
+    </script>
+</body>
+</html>
