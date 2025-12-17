@@ -277,10 +277,10 @@
             // Reset the timer if they keep typing
             clearTimeout(bubbleTimer);
 
-            // Hide the bubble after 1 second of not typing
+            // Hide the bubble after 3 second of not typing
             bubbleTimer = setTimeout(() => {
                 bubble.classList.remove('pop');
-            }, 1000);
+            }, 3000);
         });
     </script>
 
