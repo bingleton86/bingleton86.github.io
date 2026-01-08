@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Bill of Rights Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=IM+Fell+DW+Pica&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #2b231d;
+            font-family: 'IM Fell DW Pica', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Parchment Effect */
+        .parchment {
+            background: #f4e4bc;
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+            color: #3b2b1a;
+            padding: 40px;
+            max-width: 950px;
+            width: 100%;
+            border: 2px solid #5d4037;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8), inset 0 0 100px rgba(139, 101, 8, 0.2);
+            position: relative;
+            border-radius: 2px;
+        }
+
+        h1 {
+            font-family: 'IM Fell English SC', serif;
+            text-align: center;
+            font-size: 3rem;
+            border-bottom: 2px double #3b2b1a;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        h2 {
+            font-family: 'IM Fell English SC', serif;
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 20px;
+            text-decoration: underline;
+        }
+
+        .category-box {
+            border: 1px solid #8d6e63;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Antique Button Style */
+        .old-link {
+            display: block;
+            background: #3b2b1a;
+            color: #f4e4bc;
+            text-align: center;
+            padding: 12px;
+            margin: 10px 0;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            border: 1px solid #000;
+            transition: all 0.3s;
+            box-shadow: 3px 3px 0px #8d6e63;
+        }
+
+        .old-link:hover {
+            background: #5d4037;
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0px #2b231d;
+        }
+
+        .amendment-list {
+            column-count: 2;
+            column-gap: 30px;
+            font-size: 0.95rem;
+            line-height: 1.4;
+        }
+
+        .amendment-item {
+            margin-bottom: 15px;
+            break-inside: avoid;
+        }
+
+        .amendment-title {
+            font-weight: bold;
+            display: block;
+            border-bottom: 1px solid #3b2b1a;
+            margin-bottom: 5px;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.5rem;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="parchment">
+        <h1>The Bill of Rights</h1>
+        <p class="text-center italic mb-8" style="font-size: 1.2rem;">The First Ten Amendments to the Constitution of the United States</p>
+
+        <!-- The 10 Amendments Section -->
+        <div class="category-box mb-10">
+            <h2>Articles of Amendment</h2>
+            <div class="amendment-list">
+                <div class="amendment-item">
+                    <span class="amendment-title">I. Freedom of Expression</span>
+                    Religion, speech, press, assembly, and petition.
+                </div>
+                <div class="amendment-item">
+                    <span class="amendment-title">II. Right to Bear Arms</span>
+                    The right of the people to keep and bear arms.
+                </div>
+                <div class="amendment-item">
+                    <span class="amendment-title">III. Quartering Soldiers</span>
+                    No soldier shall be quartered in any house without consent.
+                </div>
+                <div class="amendment-item">
+                    <span class="amendment-title">IV. Search and Seizure</span>
+                    Protection against unreasonable searches and seizures.
+                </div>
+                <div class="amendment-item">
+                    <span class="amendment-title">V. Rights of Persons</span>
+                    Due process, double jeopardy, and self-incrimination.
+                </div>
+                <div class="amendment-item">
+                    <span class="amendment-title">VI. Rights in Criminal Cases</span>
+                    Right to a speedy and public trial by an impartial jury.
+                </div>
+                <div class="amendment-item">
+                    <span class="amendment-title">VII. Rights in Civil Cases</span>
+                    Right to a trial by jury in civil disputes.
+                </div>
+                <div class="amendment-item">
+                    <span class="amendment-title">VIII. Bails and Punishments</span>
+                    No excessive bail, nor cruel and unusual punishments.
+                </div>
+                <div class="amendment-item">
+                    <span class="amendment-title">IX. Rights Retained by People</span>
+                    Rights not listed are still held by the people.
+                </div>
+                <div class="amendment-item">
+                    <span class="amendment-title">X. Powers of the States</span>
+                    Powers not delegated to the U.S. belong to the States.
+                </div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Intel Section -->
+            <div class="category-box">
+                <h2>I. Historical Records</h2>
+                <a href="https://constitutioncenter.org/interactive-constitution" target="_blank" class="old-link">Interactive Constitution</a>
+                <a href="https://www.archives.gov/founding-docs/bill-of-rights-transcript" target="_blank" class="old-link">Original Transcript (NARA)</a>
+                <a href="https://billofrightsinstitute.org/curriculum-and-resources" target="_blank" class="old-link">Bill of Rights Institute</a>
+            </div>
+
+            <!-- Games Section -->
+            <div class="category-box">
+                <h2>II. Educational Games</h2>
+                <a href="https://www.icivics.org/games/do-i-have-right" target="_blank" class="old-link">Game: Do I Have a Right?</a>
+                <a href="https://www.icivics.org/games/argument-wars" target="_blank" class="old-link">Game: Argument Wars</a>
+                <a href="https://constitutioncenter.org/education/classroom-resource-library/classroom/bill-of-rights-bingo" target="_blank" class="old-link">Constitutional Bingo</a>
+            </div>
+
+        </div>
+
+        <div class="divider">❦ ❧</div>
+    </div>
+
+</body>
+</html>
