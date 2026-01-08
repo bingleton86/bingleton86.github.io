@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The French & Indian War Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=IM+Fell+DW+Pica&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #2b231d;
+            font-family: 'IM Fell DW Pica', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Parchment Effect */
+        .parchment {
+            background: #f4e4bc;
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+            color: #3b2b1a;
+            padding: 40px;
+            max-width: 850px;
+            width: 100%;
+            border: 2px solid #5d4037;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8), inset 0 0 100px rgba(139, 101, 8, 0.2);
+            position: relative;
+            border-radius: 2px;
+        }
+
+        /* Aged Edges */
+        .parchment::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border: 1px solid rgba(0,0,0,0.1);
+            pointer-events: none;
+        }
+
+        h1 {
+            font-family: 'IM Fell English SC', serif;
+            text-align: center;
+            font-size: 3rem;
+            border-bottom: 2px double #3b2b1a;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        h2 {
+            font-family: 'IM Fell English SC', serif;
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 20px;
+            text-decoration: underline;
+        }
+
+        .category-box {
+            border: 1px solid #8d6e63;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Antique Button Style */
+        .old-link {
+            display: block;
+            background: #3b2b1a;
+            color: #f4e4bc;
+            text-align: center;
+            padding: 12px;
+            margin: 10px 0;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            border: 1px solid #000;
+            transition: all 0.3s;
+            box-shadow: 3px 3px 0px #8d6e63;
+        }
+
+        .old-link:hover {
+            background: #5d4037;
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0px #2b231d;
+        }
+
+        .old-link:active {
+            transform: translate(1px, 1px);
+            box-shadow: 1px 1px 0px #2b231d;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.5rem;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="parchment">
+        <h1>Historical Records</h1>
+        <p class="text-center italic mb-8" style="font-size: 1.2rem;">Frontier Conflicts & the Struggle for Independence</p>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Intel Section -->
+            <div class="category-box">
+                <h2>I. Informational Texts</h2>
+                <a href="https://www.pbs.org/thewarthatmadeamerica/" target="_blank" class="old-link">The French-Indian War (PBS)</a>
+                <a href="https://www.battlefields.org/learn/revolutionary-war" target="_blank" class="old-link">War Facts & Biographies</a>
+                <a href="https://www.archives.gov/founding-docs/declaration-transcript" target="_blank" class="old-link">The Declaration of Independence</a>
+                <a href="https://www.battlefields.org/learn/maps/revolutionary-war-animated-map" target="_blank" class="old-link">Animated Battle Maps</a>
+            </div>
+
+            <!-- Games Section -->
+            <div class="category-box">
+                <h2>II. Educational Games</h2>
+                <a href="https://www.mission-us.org/play/for-crown-or-colony/" target="_blank" class="old-link">Mission: For Crown or Colony?</a>
+                <a href="https://www.americanrevolutioninstitute.org/revolutionary-choices-game/" target="_blank" class="old-link">Revolutionary Strategy</a>
+                <a href="https://ed.icivics.org/games/uncovering-loyalties" target="_blank" class="old-link">Investigate: Uncovering Loyalties</a>
+                <a href="https://bewashington.org/" target="_blank" class="old-link">Simulation: Be Washington</a>
+            </div>
+
+        </div>
+
+        <div class="divider">❦ ❧</div>
+    </div>
+
+</body>
+</html>
