@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jacksonian Democracy Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=IM+Fell+DW+Pica&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #2b231d;
+            font-family: 'IM Fell DW Pica', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Parchment Effect */
+        .parchment {
+            background: #f4e4bc;
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+            color: #3b2b1a;
+            padding: 40px;
+            max-width: 950px;
+            width: 100%;
+            border: 2px solid #5d4037;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8), inset 0 0 100px rgba(139, 101, 8, 0.2);
+            position: relative;
+            border-radius: 2px;
+        }
+
+        h1 {
+            font-family: 'IM Fell English SC', serif;
+            text-align: center;
+            font-size: 3rem;
+            border-bottom: 2px double #3b2b1a;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        h2 {
+            font-family: 'IM Fell English SC', serif;
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 20px;
+            text-decoration: underline;
+        }
+
+        .category-box {
+            border: 1px solid #8d6e63;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Antique Button Style */
+        .old-link {
+            display: block;
+            background: #3b2b1a;
+            color: #f4e4bc;
+            text-align: center;
+            padding: 12px;
+            margin: 10px 0;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            border: 1px solid #000;
+            transition: all 0.3s;
+            box-shadow: 3px 3px 0px #8d6e63;
+        }
+
+        .old-link:hover {
+            background: #5d4037;
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0px #2b231d;
+        }
+
+        .timeline-list {
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .timeline-item {
+            margin-bottom: 12px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .year {
+            font-weight: bold;
+            min-width: 80px;
+            border-right: 1px solid #3b2b1a;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.5rem;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="parchment">
+        <h1>Jacksonian Democracy</h1>
+        <p class="text-center italic mb-8" style="font-size: 1.2rem;">The Rise of the Common Man & The Age of Reform</p>
+
+        <!-- Chronology Section -->
+        <div class="category-box mb-10">
+            <h2>Key Chronology</h2>
+            <div class="timeline-list">
+                <div class="timeline-item">
+                    <span class="year">1824</span>
+                    The "Corrupt Bargain" - Jackson loses despite popular vote win.
+                </div>
+                <div class="timeline-item">
+                    <span class="year">1828</span>
+                    Jackson wins Presidency; expansion of voting rights.
+                </div>
+                <div class="timeline-item">
+                    <span class="year">1830</span>
+                    The Indian Removal Act is signed.
+                </div>
+                <div class="timeline-item">
+                    <span class="year">1832</span>
+                    The Veto of the Second Bank of the U.S.
+                </div>
+                <div class="timeline-item">
+                    <span class="year">1838</span>
+                    The Trail of Tears forced removal.
+                </div>
+            </div>
+            <!-- Hand-verified LOC link -->
+            <a href="https://www.loc.gov/collections/andrew-jackson-papers/articles-and-essays/andrew-jackson-timeline-1767-1845/" target="_blank" class="old-link mt-6">View Library of Congress Timeline</a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Intel Section -->
+            <div class="category-box">
+                <h2>I. Primary Records</h2>
+                <!-- Hand-verified National Archives link -->
+                <a href="https://en.wikipedia.org/wiki/Indian_Removal_Act$0" target="_blank" class="old-link">Indian Removal Act (Records)</a>
+                <a href="https://www.ushistory.org/us/24a.asp$0" target="_blank" class="old-link">Jackson: The Common Man Bio</a>
+                <a href="https://billofrightsinstitute.org/videos/andrew-jackson-and-the-bank-wars-homework-help$0" target="_blank" class="old-link">The Bank War Deep Dive</a>
+            </div>
+
+          
+
+        </div>
+
+        <div class="divider">❦ ❧</div>
+    </div>
+
+</body>
+</html>
