@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Era of Good Feelings Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=IM+Fell+DW+Pica&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #2b231d;
+            font-family: 'IM Fell DW Pica', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+
+        /* Parchment Effect */
+        .parchment {
+            background: #f4e4bc;
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+            color: #3b2b1a;
+            padding: 40px;
+            max-width: 950px;
+            width: 100%;
+            border: 2px solid #5d4037;
+            box-shadow: 0 0 50px rgba(0,0,0,0.8), inset 0 0 100px rgba(139, 101, 8, 0.2);
+            position: relative;
+            border-radius: 2px;
+        }
+
+        h1 {
+            font-family: 'IM Fell English SC', serif;
+            text-align: center;
+            font-size: 3rem;
+            border-bottom: 2px double #3b2b1a;
+            margin-bottom: 30px;
+            padding-bottom: 10px;
+            letter-spacing: 2px;
+        }
+
+        h2 {
+            font-family: 'IM Fell English SC', serif;
+            font-size: 1.8rem;
+            text-align: center;
+            margin-bottom: 20px;
+            text-decoration: underline;
+        }
+
+        .category-box {
+            border: 1px solid #8d6e63;
+            padding: 20px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Antique Button Style */
+        .old-link {
+            display: block;
+            background: #3b2b1a;
+            color: #f4e4bc;
+            text-align: center;
+            padding: 12px;
+            margin: 10px 0;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 1.1rem;
+            border: 1px solid #000;
+            transition: all 0.3s;
+            box-shadow: 3px 3px 0px #8d6e63;
+        }
+
+        .old-link:hover {
+            background: #5d4037;
+            transform: translate(-2px, -2px);
+            box-shadow: 5px 5px 0px #2b231d;
+        }
+
+        .timeline-list {
+            font-size: 1.05rem;
+            line-height: 1.6;
+        }
+
+        .timeline-item {
+            margin-bottom: 12px;
+            display: flex;
+            gap: 15px;
+        }
+
+        .year {
+            font-weight: bold;
+            min-width: 80px;
+            border-right: 1px solid #3b2b1a;
+        }
+
+        .divider {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 1.5rem;
+            opacity: 0.6;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="parchment">
+        <h1>Era of Good Feelings</h1>
+        <p class="text-center italic mb-8" style="font-size: 1.2rem;">National Unity & The Monroe Doctrine (1815–1825)</p>
+
+        <!-- Chronology Section -->
+        <div class="category-box mb-10">
+            <h2>Key Chronology</h2>
+            <div class="timeline-list">
+                <div class="timeline-item">
+                    <span class="year">1815</span>
+                    End of the War of 1812 leads to a surge in American nationalism.
+                </div>
+                <div class="timeline-item">
+                    <span class="year">1817</span>
+                    James Monroe is inaugurated; the "Era of Good Feelings" term is coined.
+                </div>
+                <div class="timeline-item">
+                    <span class="year">1819</span>
+                    The Panic of 1819 brings the first major financial crisis to the U.S.
+                </div>
+                <div class="timeline-item">
+                    <span class="year">1820</span>
+                    The Missouri Compromise is passed to settle slavery disputes in new states.
+                </div>
+                <div class="timeline-item">
+                    <span class="year">1823</span>
+                    President Monroe announces the "Monroe Doctrine" to the world.
+                </div>
+                <div class="timeline-item">
+                    <span class="year">1824</span>
+                    The "Corrupt Bargain" election ends the era of political unity.
+                </div>
+            </div>
+            <a href="https://www.britannica.com/event/Era-of-Good-Feelings" target="_blank" class="old-link mt-6">Learn More about this Era</a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Intel Section -->
+            <div class="category-box">
+                <h2>I. Historical Records</h2>
+                <a href="https://www.archives.gov/milestone-documents/monroe-doctrine" target="_blank" class="old-link">The Monroe Doctrine (NARA)</a>
+                <a href="https://jamesmonroemuseum.umw.edu/exhibitions/timeline-trail/era-good-feelings/$0https://jamesmonroemuseum.umw.edu/exhibitions/timeline-trail/era-good-feelings/$0" target="_blank" class="old-link">Monroe Museum Resources</a>
+                <a href="https://www.americanhistorycentral.com/entries/era-of-good-feelings/" target="_blank" class="old-link">More Info</a>
+            </div>
+
+            <!-- Games & Interactives Section -->
+            <div class="category-box">
+                <h2>II. Educational Games</h2>
+                <a href="https://study.com/skill/practice/knowledge-understanding-war-of-1812-the-era-of-good-feeling-middle-school-questions.html" target="_blank" class="old-link">Challenge: Era Quiz-Game</a>
+                <a href="https://www.baamboozle.com/game/343982$0" target="_blank" class="old-link">Classroom Game</a>
+                <a href="https://resources.quizalize.com/view/quiz/the-era-of-good-feelings-8a57d882-0efc-428e-9850-f43719a00292$0" target="_blank" class="old-link">Era of Good Feelings Quiz</a>
+            </div>
+
+        </div>
+
+        <div class="divider">❦ ❧</div>
+    </div>
+
+</body>
+</html>
