@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload & Edit</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        .upload-container {
+            border: 2px dashed #888;
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+            border-radius: 8px;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        label {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .file-name {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Upload or Edit File</h2>
+
+<form action="upload.php" method="POST" enctype="multipart/form-data">
+    <div class="upload-container">
+        <input type="file" id="fileInput" name="uploadedFile" accept=".jpg,.jpeg,.png,.pdf,.docx">
+        <label for="fileInput">Choose File</label>
+        <div class="file-name" id="fileName">No file selected</div>
+    </div>
+    <br>
+    <button type="submit">Upload</button>
+</form>
+
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const fileNameDisplay = document.getElementById('fileName');
+
+    // Show selected file name
+    fileInput.addEventListener('change', function () {
+        if (fileInput.files.length > 0) {
+            fileNameDisplay.textContent = fileInput.files[0].name;
+        } else {
+            fileNameDisplay.textContent = "No file selected";
+        }
+    });
+</script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>File Upload & Edit</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 40px;
+        }
+        .upload-container {
+            border: 2px dashed #888;
+            padding: 20px;
+            width: 300px;
+            text-align: center;
+            border-radius: 8px;
+        }
+        input[type="file"] {
+            display: none;
+        }
+        label {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .file-name {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+
+<h2>Upload or Edit File</h2>
+
+<form action="upload.php" method="POST" enctype="multipart/form-data">
+    <div class="upload-container">
+        <input type="file" id="fileInput" name="uploadedFile" accept=".jpg,.jpeg,.png,.pdf,.docx">
+        <label for="fileInput">Choose File</label>
+        <div class="file-name" id="fileName">No file selected</div>
+    </div>
+    <br>
+    <button type="submit">Upload</button>
+</form>
+
+<script>
+    const fileInput = document.getElementById('fileInput');
+    const fileNameDisplay = document.getElementById('fileName');
+
+    // Show selected file name
+    fileInput.addEventListener('change', function () {
+        if (fileInput.files.length > 0) {
+            fileNameDisplay.textContent = fileInput.files[0].name;
+        } else {
+            fileNameDisplay.textContent = "No file selected";
+        }
+    });
+</script>
+
+</body>
+</html>
