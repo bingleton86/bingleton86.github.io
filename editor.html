@@ -53,6 +53,15 @@
             height: calc(100vh - 84px) !important; /* Header + Footer */
             z-index: 50;
         }
+
+        .ai-loading {
+            animation: pulse 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
     </style>
 </head>
 <body>
@@ -65,7 +74,7 @@
             </div>
             <div>
                 <h1 class="text-sm font-bold tracking-tight uppercase text-slate-200">RelatableCode</h1>
-                <p class="text-[10px] text-slate-500 -mt-1 uppercase tracking-widest font-bold">Pro Editor</p>
+                <p class="text-[10px] text-slate-500 -mt-1 uppercase tracking-widest font-bold">Pro AI Editor</p>
             </div>
         </div>
         
@@ -93,13 +102,37 @@
         <section id="editorSection" class="flex-1 flex flex-col border-r border-slate-800 transition-all duration-300">
             <div class="p-2 border-b border-slate-800 flex justify-between items-center px-4 bg-slate-900/50">
                 <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Source Code</span>
-                <button id="fullCodeBtn" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-1 rounded border border-slate-700 uppercase">
-                    Expand
-                </button>
+                <div class="flex gap-2">
+                    <button id="aiAssistBtn" class="text-[10px] bg-indigo-600 hover:bg-indigo-500 text-white px-2 py-1 rounded border border-indigo-400 uppercase font-bold transition-colors">
+                        ✨ AI Assistant
+                    </button>
+                    <button id="fullCodeBtn" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-1 rounded border border-slate-700 uppercase">
+                        Expand
+                    </button>
+                </div>
             </div>
             <div class="editor-container">
                 <textarea id="editing" spellcheck="false" placeholder="Start coding something cool..."></textarea>
                 <pre id="highlighting" aria-hidden="true"><code class="language-markup" id="highlighting-content"></code></pre>
+            </div>
+        </section>
+
+        <!-- AI Panel -->
+        <section id="aiPanel" class="w-80 flex flex-col bg-slate-900 border-l border-slate-800 hidden">
+            <div class="p-3 border-b border-slate-800 flex justify-between items-center bg-slate-950">
+                <span class="text-[10px] text-indigo-400 font-bold uppercase tracking-widest">✨ Gemini AI</span>
+                <button onclick="toggleAIPanel()" class="text-[10px] text-slate-500 hover:text-white uppercase">Close</button>
+            </div>
+            <div class="p-4 flex flex-col gap-3 overflow-y-auto flex-1">
+                <div class="grid grid-cols-2 gap-2">
+                    <button onclick="aiAction('explain')" class="text-[10px] bg-slate-800 hover:bg-indigo-900 border border-slate-700 p-2 rounded text-slate-300 font-bold">✨ EXPLAIN</button>
+                    <button onclick="aiAction('refactor')" class="text-[10px] bg-slate-800 hover:bg-indigo-900 border border-slate-700 p-2 rounded text-slate-300 font-bold">✨ REFACTOR</button>
+                    <button onclick="aiAction('debug')" class="text-[10px] bg-slate-800 hover:bg-indigo-900 border border-slate-700 p-2 rounded text-slate-300 font-bold">✨ DEBUG</button>
+                    <button onclick="aiAction('autocomplete')" class="text-[10px] bg-slate-800 hover:bg-indigo-900 border border-slate-700 p-2 rounded text-slate-300 font-bold">✨ AUTOFILL</button>
+                </div>
+                <div id="aiResponse" class="mt-4 text-xs text-slate-400 leading-relaxed whitespace-pre-wrap border-t border-slate-800 pt-4">
+                    Ready to help! Select code or click an action above.
+                </div>
             </div>
         </section>
 
@@ -127,21 +160,25 @@
         <div class="flex gap-4">
             <div id="charCount">Chars: 0</div>
             <div id="lineCount">Lines: 1</div>
-            <div class="text-blue-400">Relatable Mode Active</div>
+            <div class="text-blue-400">✨ AI Co-pilot Enabled</div>
         </div>
     </footer>
 
     <script>
+        const apiKey = ""; // Handled by environment
         const editing = document.querySelector("#editing");
         const highlighting = document.querySelector("#highlighting-content");
         const langSelect = document.querySelector("#langSelect");
         const previewPanel = document.querySelector("#previewPanel");
         const editorSection = document.querySelector("#editorSection");
+        const aiPanel = document.querySelector("#aiPanel");
         const previewFrame = document.querySelector("#preview");
         const status = document.getElementById('status');
+        const aiResponse = document.getElementById('aiResponse');
         
         const fullCodeBtn = document.getElementById('fullCodeBtn');
         const fullPreviewBtn = document.getElementById('fullPreviewBtn');
+        const aiAssistBtn = document.getElementById('aiAssistBtn');
 
         // Sync Scrolling
         editing.addEventListener("scroll", () => {
@@ -176,12 +213,102 @@
             }
         });
 
+        // Gemini AI Integration
+        async function aiAction(type) {
+            const code = editing.value;
+            const lang = langSelect.value;
+            const selectedText = code.substring(editing.selectionStart, editing.selectionEnd);
+            const contextText = selectedText || code;
+
+            if (!contextText.trim()) {
+                aiResponse.innerText = "Please write or select some code first!";
+                return;
+            }
+
+            aiResponse.innerText = "✨ Gemini is thinking...";
+            aiResponse.classList.add('ai-loading');
+            status.innerText = "✨ AI Generating...";
+
+            let systemPrompt = "";
+            let userPrompt = "";
+
+            switch(type) {
+                case 'explain':
+                    systemPrompt = "You are a senior software engineer. Explain the provided code clearly and concisely for a junior developer.";
+                    userPrompt = `Language: ${lang}\nCode:\n${contextText}`;
+                    break;
+                case 'refactor':
+                    systemPrompt = "You are a code optimization expert. Provide an improved/refactored version of the code. Only return the code block, no extra text.";
+                    userPrompt = `Language: ${lang}\nCode to refactor:\n${contextText}`;
+                    break;
+                case 'debug':
+                    systemPrompt = "You are a debugging expert. Identify potential bugs or improvements in the code and suggest fixes.";
+                    userPrompt = `Language: ${lang}\nCode to check:\n${contextText}`;
+                    break;
+                case 'autocomplete':
+                    systemPrompt = "You are a code completion assistant. Based on the code provided, suggest the next logical lines of code. Return ONLY the code.";
+                    userPrompt = `Language: ${lang}\nExisting code:\n${contextText}`;
+                    break;
+            }
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        contents: [{ parts: [{ text: userPrompt }] }],
+                        systemInstruction: { parts: [{ text: systemPrompt }] }
+                    })
+                });
+
+                if (!response.ok) throw new Error('API request failed');
+                
+                const data = await response.json();
+                const resultText = data.candidates?.[0]?.content?.parts?.[0]?.text || "No response from AI.";
+
+                if (type === 'refactor' || type === 'autocomplete') {
+                    // Clean code response from markdown
+                    const cleanCode = resultText.replace(/```[a-z]*\n|```/gi, '').trim();
+                    aiResponse.innerText = "✨ Suggestion applied to editor!";
+                    
+                    if (selectedText) {
+                        const start = editing.selectionStart;
+                        const end = editing.selectionEnd;
+                        editing.value = editing.value.substring(0, start) + cleanCode + editing.value.substring(end);
+                    } else if (type === 'autocomplete') {
+                        editing.value += "\n" + cleanCode;
+                    } else {
+                        editing.value = cleanCode;
+                    }
+                    updateHighlighting();
+                } else {
+                    aiResponse.innerText = resultText;
+                }
+            } catch (err) {
+                aiResponse.innerText = "❌ Error: " + err.message;
+            } finally {
+                aiResponse.classList.remove('ai-loading');
+                status.innerText = "System Ready";
+            }
+        }
+
+        function toggleAIPanel() {
+            aiPanel.classList.toggle('hidden');
+            if (!aiPanel.classList.contains('hidden')) {
+                editorSection.classList.remove('is-fullscreen');
+            }
+        }
+
+        aiAssistBtn.addEventListener('click', toggleAIPanel);
+
         // Toggle Fullscreen Functions
         fullCodeBtn.addEventListener('click', () => {
             const isFull = editorSection.classList.toggle('is-fullscreen');
             fullCodeBtn.innerText = isFull ? 'Minimize' : 'Expand';
-            // Hide preview if we are full screening code
-            if(isFull) previewPanel.classList.add('hidden');
+            if(isFull) {
+                previewPanel.classList.add('hidden');
+                aiPanel.classList.add('hidden');
+            }
         });
 
         fullPreviewBtn.addEventListener('click', () => {
@@ -242,7 +369,7 @@
         });
 
         // Default Code
-        editing.value = `<!DOCTYPE html>\n<html>\n<head>\n<style>\n  body { background: #0f172a; color: #38bdf8; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }\n  .box { border: 2px solid #38bdf8; padding: 2rem; border-radius: 1rem; box-shadow: 0 0 20px rgba(56, 189, 248, 0.2); }\n</style>\n</head>\n<body>\n  <div class="box">\n    <h1>Relatable Code Editor</h1>\n    <p>Hit "Expand" to see me in full screen!</p>\n  </div>\n</body>\n</html>`;
+        editing.value = `<!DOCTYPE html>\n<html>\n<head>\n<style>\n  body { background: #0f172a; color: #38bdf8; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }\n  .box { border: 2px solid #38bdf8; padding: 2rem; border-radius: 1rem; box-shadow: 0 0 20px rgba(56, 189, 248, 0.2); }\n</style>\n</head>\n<body>\n  <div class="box">\n    <h1>Relatable AI Editor</h1>\n    <p>Try selecting this text and clicking "Explain" in the ✨ AI Assistant!</p>\n  </div>\n</body>\n</html>`;
         updateHighlighting();
     </script>
 </body>
