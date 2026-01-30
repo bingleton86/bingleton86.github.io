@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RelatableCode Editor</title>
+    <!-- PrismJS for high-quality syntax highlighting -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css">
+    <!-- Tailwind for modern styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #0f172a; color: #e2e8f0; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        .editor-container { position: relative; flex: 1; min-height: 0; }
+        #editing, #highlighting {
+            margin: 0; padding: 1.5rem;
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            font-family: 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
+            font-size: 14px; line-height: 1.5;
+            white-space: pre; border: none; outline: none;
+            overflow: auto;
+        }
+        #editing { 
+            color: transparent; 
+            background: transparent; 
+            caret-color: #38bdf8; 
+            z-index: 1; 
+            resize: none; 
+        }
+        #highlighting { z-index: 0; pointer-events: none; }
+        
+        pre[class*="language-"] { margin: 0; padding: 0; background: transparent !important; }
+        code[class*="language-"] { font-family: inherit !important; }
+        
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #64748b; }
+
+        .hidden { display: none !important; }
+        
+        /* Fullscreen Utility */
+        .is-fullscreen {
+            position: fixed !important;
+            top: 56px; /* Header height */
+            left: 0;
+            width: 100% !important;
+            height: calc(100vh - 84px) !important; /* Header + Footer */
+            z-index: 50;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Top Bar -->
+    <header class="p-3 border-b border-slate-700 flex items-center justify-between bg-slate-900 select-none h-[56px]">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded flex items-center justify-center font-bold text-white shadow-lg shadow-blue-500/20">
+                &lt;/&gt;
+            </div>
+            <div>
+                <h1 class="text-sm font-bold tracking-tight uppercase text-slate-200">RelatableCode</h1>
+                <p class="text-[10px] text-slate-500 -mt-1 uppercase tracking-widest font-bold">Pro Editor</p>
+            </div>
+        </div>
+        
+        <div class="flex items-center gap-3">
+            <select id="langSelect" class="bg-slate-800 text-xs border border-slate-700 rounded px-2 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 transition-all text-slate-300">
+                <option value="markup">HTML / XML</option>
+                <option value="javascript">JavaScript</option>
+                <option value="css">CSS</option>
+                <option value="python">Python</option>
+            </select>
+            
+            <button id="downloadBtn" class="text-xs bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3 py-1.5 rounded transition-colors flex items-center gap-2">
+                Save
+            </button>
+            
+            <button id="runBtn" class="text-xs bg-blue-600 hover:bg-blue-500 text-white font-bold px-4 py-1.5 rounded transition-all shadow-lg shadow-blue-600/20 uppercase tracking-wider">
+                Run Preview
+            </button>
+        </div>
+    </header>
+
+    <!-- Workspace -->
+    <main class="flex flex-1 overflow-hidden bg-slate-950 relative">
+        <!-- Editor View -->
+        <section id="editorSection" class="flex-1 flex flex-col border-r border-slate-800 transition-all duration-300">
+            <div class="p-2 border-b border-slate-800 flex justify-between items-center px-4 bg-slate-900/50">
+                <span class="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Source Code</span>
+                <button id="fullCodeBtn" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-2 py-1 rounded border border-slate-700 uppercase">
+                    Expand
+                </button>
+            </div>
+            <div class="editor-container">
+                <textarea id="editing" spellcheck="false" placeholder="Start coding something cool..."></textarea>
+                <pre id="highlighting" aria-hidden="true"><code class="language-markup" id="highlighting-content"></code></pre>
+            </div>
+        </section>
+
+        <!-- Preview View -->
+        <section id="previewPanel" class="flex-1 flex flex-col bg-slate-200 hidden transition-all duration-300">
+            <div class="p-2 border-b border-slate-300 flex justify-between items-center px-4 bg-white">
+                <div class="flex items-center gap-2">
+                    <div class="w-2 h-2 rounded-full bg-red-400"></div>
+                    <div class="w-2 h-2 rounded-full bg-yellow-400"></div>
+                    <div class="w-2 h-2 rounded-full bg-green-400"></div>
+                    <span class="text-[10px] text-slate-400 font-bold uppercase ml-2 tracking-widest">Live Output</span>
+                </div>
+                <div class="flex gap-2">
+                    <button id="fullPreviewBtn" class="text-[10px] font-bold text-slate-400 hover:text-blue-600 uppercase">Expand</button>
+                    <button onclick="closePreview()" class="text-[10px] font-bold text-slate-400 hover:text-red-600 uppercase">Close</button>
+                </div>
+            </div>
+            <iframe id="preview" class="w-full h-full border-none"></iframe>
+        </section>
+    </main>
+
+    <!-- Status Bar -->
+    <footer class="p-1 px-4 bg-slate-900 border-t border-slate-700 flex justify-between items-center text-[10px] text-slate-500 uppercase tracking-widest font-bold h-[28px] select-none">
+        <div id="status">System Ready</div>
+        <div class="flex gap-4">
+            <div id="charCount">Chars: 0</div>
+            <div id="lineCount">Lines: 1</div>
+            <div class="text-blue-400">Relatable Mode Active</div>
+        </div>
+    </footer>
+
+    <script>
+        const editing = document.querySelector("#editing");
+        const highlighting = document.querySelector("#highlighting-content");
+        const langSelect = document.querySelector("#langSelect");
+        const previewPanel = document.querySelector("#previewPanel");
+        const editorSection = document.querySelector("#editorSection");
+        const previewFrame = document.querySelector("#preview");
+        const status = document.getElementById('status');
+        
+        const fullCodeBtn = document.getElementById('fullCodeBtn');
+        const fullPreviewBtn = document.getElementById('fullPreviewBtn');
+
+        // Sync Scrolling
+        editing.addEventListener("scroll", () => {
+            const pre = document.querySelector("#highlighting");
+            pre.scrollTop = editing.scrollTop;
+            pre.scrollLeft = editing.scrollLeft;
+        });
+
+        // Highlighting Logic
+        function updateHighlighting() {
+            let code = editing.value;
+            if (code[code.length-1] === "\n") code += " "; 
+            highlighting.textContent = code;
+            highlighting.className = `language-${langSelect.value}`;
+            Prism.highlightElement(highlighting);
+            document.getElementById('charCount').innerText = `Chars: ${editing.value.length}`;
+            document.getElementById('lineCount').innerText = `Lines: ${editing.value.split('\n').length}`;
+        }
+
+        editing.addEventListener("input", updateHighlighting);
+        langSelect.addEventListener("change", updateHighlighting);
+
+        // Tab Support
+        editing.addEventListener("keydown", function(e) {
+            if (e.key === "Tab") {
+                e.preventDefault();
+                let start = this.selectionStart;
+                let end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + "    " + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 4;
+                updateHighlighting();
+            }
+        });
+
+        // Toggle Fullscreen Functions
+        fullCodeBtn.addEventListener('click', () => {
+            const isFull = editorSection.classList.toggle('is-fullscreen');
+            fullCodeBtn.innerText = isFull ? 'Minimize' : 'Expand';
+            // Hide preview if we are full screening code
+            if(isFull) previewPanel.classList.add('hidden');
+        });
+
+        fullPreviewBtn.addEventListener('click', () => {
+            const isFull = previewPanel.classList.toggle('is-fullscreen');
+            fullPreviewBtn.innerText = isFull ? 'Minimize' : 'Expand';
+        });
+
+        function closePreview() {
+            previewPanel.classList.add('hidden');
+            previewPanel.classList.remove('is-fullscreen');
+            fullPreviewBtn.innerText = 'Expand';
+        }
+
+        // Preview Run Logic
+        document.getElementById('runBtn').addEventListener('click', () => {
+            const code = editing.value;
+            const lang = langSelect.value;
+            
+            previewPanel.classList.remove('hidden');
+            const doc = previewFrame.contentDocument || previewFrame.contentWindow.document;
+            doc.open();
+            
+            if (lang === 'markup') {
+                doc.write(code);
+            } else if (lang === 'javascript') {
+                doc.write(`
+                    <body style="font-family: sans-serif; padding: 20px; background: #f8fafc;">
+                        <h2 style="color: #1e293b;">JS Console</h2>
+                        <pre id="log" style="background: #1e293b; color: #38bdf8; padding: 15px; border-radius: 8px; overflow: auto;"></pre>
+                        <script>
+                            const output = document.getElementById('log');
+                            console.log = (...args) => { output.innerText += args.join(' ') + '\\n'; };
+                            try { ${code} } catch (e) { output.innerHTML += '<span style="color:#f87171">Error: ' + e.message + '</span>'; }
+                        <\/script>
+                    </body>`);
+            } else if (lang === 'css') {
+                doc.write(`<style>${code}</style><div style="padding:40px;text-align:center;"><h1>CSS Preview</h1><p>Your styles are active!</p></div>`);
+            }
+            doc.close();
+            
+            status.innerText = "Execution Successful";
+            setTimeout(() => status.innerText = "System Ready", 2000);
+        });
+
+        // File saving
+        document.getElementById('downloadBtn').addEventListener('click', () => {
+            const code = editing.value;
+            const ext = { 'markup': 'html', 'javascript': 'js', 'css': 'css', 'python': 'py' }[langSelect.value] || 'txt';
+            const blob = new Blob([code], {type: "text/plain"});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `relatable_project.${ext}`;
+            a.click();
+            URL.revokeObjectURL(url);
+            status.innerText = "File Saved";
+            setTimeout(() => status.innerText = "System Ready", 2000);
+        });
+
+        // Default Code
+        editing.value = `<!DOCTYPE html>\n<html>\n<head>\n<style>\n  body { background: #0f172a; color: #38bdf8; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; }\n  .box { border: 2px solid #38bdf8; padding: 2rem; border-radius: 1rem; box-shadow: 0 0 20px rgba(56, 189, 248, 0.2); }\n</style>\n</head>\n<body>\n  <div class="box">\n    <h1>Relatable Code Editor</h1>\n    <p>Hit "Expand" to see me in full screen!</p>\n  </div>\n</body>\n</html>`;
+        updateHighlighting();
+    </script>
+</body>
+</html>
